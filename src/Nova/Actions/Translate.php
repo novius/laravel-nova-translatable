@@ -1,6 +1,6 @@
 <?php
 
-namespace Novius\LaravelNovaNews\Actions;
+namespace Novius\LaravelNovaNews\Nova\Actions;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
