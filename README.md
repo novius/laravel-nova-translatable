@@ -38,6 +38,7 @@ class Post extends Resource
                 ->locales(['fr' => 'Français', 'en' => 'English'])
                 ->titleField('name')
                 ->titleLabel('Name')
+                ->redirectAfterTranslate(false)
                 ->onlyInline(),
         ];
     }
