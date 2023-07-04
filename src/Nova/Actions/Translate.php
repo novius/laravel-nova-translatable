@@ -24,6 +24,8 @@ class Translate extends Action
 
     protected ?string $titleLabel = null;
 
+    protected bool $redirectAfterTranslate = true;
+
     public function locales(array $locales): static
     {
         $this->locales = $locales;
@@ -57,6 +59,13 @@ class Translate extends Action
         return $this;
     }
 
+    public function redirectAfterTranslate(bool $redirect = true): static
+    {
+        $this->redirectAfterTranslate = $redirect;
+
+        return $this;
+    }
+
     public function handle(ActionFields $fields, Collection $models)
     {
         if ($this->onModel === null || ! class_exists($this->onModel)) {
@@ -78,10 +87,11 @@ class Translate extends Action
             /** @var NovaResource $resourceClass */
             $resourceClass = Nova::resourceForModel($modelToTranslate::class);
 
-            return Action::visit('/resources/'.$resourceClass::uriKey(), [
-                'viaResource' => $resourceClass::uriKey(),
-                'viaResourceId' => $modelTranslate->{$modelTranslate->getKeyName()},
-            ]);
+            if ($this->redirectAfterTranslate) {
+                return Action::redirect(Nova::path().'/resources/'.$resourceClass::uriKey().'/'.$modelTranslate->{$modelTranslate->getKeyName()}.'/edit');
+            }
+
+            return Action::message(trans('laravel-nova-translatable::messages.successfully_translated'));
         } catch (TranslatableException $e) {
             return Action::danger($e->getMessage());
         } catch (\Exception $e) {
