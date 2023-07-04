@@ -95,7 +95,7 @@ class Translate extends Action
     public function fields(NovaRequest $request): array
     {
         $fields = [
-            Select::make(trans('laravel-nova-news::crud-post.locale'), 'locale')
+            Select::make(trans('laravel-nova-translatable::messages.language'), 'locale')
                 ->options($this->locales)
                 ->displayUsingLabels()
                 ->rules('required', 'in:'.implode(',', array_keys($this->locales))),
