@@ -18,8 +18,6 @@ class Translate extends Action
 {
     protected array $locales = [];
 
-    protected ?string $onModel = null;
-
     protected ?string $titleField = null;
 
     protected ?string $titleLabel = null;
@@ -36,13 +34,6 @@ class Translate extends Action
     public function name()
     {
         return $this->name ?: trans('laravel-nova-translatable::messages.translate');
-    }
-
-    public function onModel(string $model): static
-    {
-        $this->onModel = $model;
-
-        return $this;
     }
 
     public function titleField(string $titleField): static
@@ -68,12 +59,12 @@ class Translate extends Action
 
     public function handle(ActionFields $fields, Collection $models)
     {
-        if ($this->onModel === null || ! class_exists($this->onModel)) {
-            throw new \RuntimeException('You must define Model of Translate action.');
-        }
-
         if ($models->count() > 1) {
             return Action::danger(trans('laravel-nova-translatable::messages.action_only_available_for_single'));
+        }
+
+        if (! in_array(Translatable::class, class_uses_recursive($models->first()))) {
+            throw new \RuntimeException('Translate action only work on model using Translatable trait.');
         }
 
         try {
