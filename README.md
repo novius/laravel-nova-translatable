@@ -34,7 +34,6 @@ class Post extends Resource
     {
         return [
             Translate::make()
-                ->onModel($this->resource::class)
                 ->locales(['fr' => 'Français', 'en' => 'English'])
                 ->titleField('name')
                 ->titleLabel('Name')
