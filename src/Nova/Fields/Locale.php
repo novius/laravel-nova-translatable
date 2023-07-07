@@ -3,6 +3,9 @@
 namespace Novius\LaravelNovaTranslatable\Nova\Fields;
 
 use Laravel\Nova\Fields\Select;
+use Laravel\Nova\Resource;
+use Novius\LaravelNovaTranslatable\Helpers\SessionHelper;
+use Novius\LaravelTranslatable\Traits\Translatable;
 
 class Locale extends Select
 {
@@ -12,7 +15,6 @@ class Locale extends Select
 
         $this->rules('required')
             ->sortable()
-            ->filterable()
             ->displayUsingLabels()
             ->showOnIndex(function () {
                 $options = value($this->optionsCallback);
@@ -25,7 +27,19 @@ class Locale extends Select
                     return array_keys($options)[0];
                 }
 
-                return null;
+                return SessionHelper::currentLocale($this->resource?->uriKey()) ?? null;
             });
+    }
+
+    public function resource(Resource $resource): static
+    {
+        if (! in_array(Translatable::class, class_uses_recursive($resource->resource))) {
+            throw new \RuntimeException('Resource must use trait Novius\LaravelTranslatable\Traits\Translatable');
+        }
+
+        $this->resource = $resource;
+        $this->attribute = $resource->resource->getLocaleColumn();
+
+        return $this;
     }
 }
