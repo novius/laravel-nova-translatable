@@ -19,9 +19,14 @@ class LaravelNovaTranslatableServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadTranslationsFrom(__DIR__.'/../lang', 'laravel-nova-translatable');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'laravel-nova-translatable');
 
         $this->publishes([
             __DIR__.'/../lang' => lang_path('vendor/laravel-nova-translatable'),
         ], 'lang');
+
+        $this->publishes([
+            __DIR__.'/../resources' => public_path('vendor/laravel-nova-translatable'),
+        ], 'public');
     }
 }
