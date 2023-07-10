@@ -28,44 +28,19 @@ Next we need to publish the package's assets. We do this by running the followin
 php artisan vendor:publish --provider="Novius\LaravelNovaTranslatable\LaravelNovaTranslatableServiceProvider" --tag="public"
 ```
 
-## Action Translate
+## Fields, Action, Filter, Card
 
-You can add the `Translate` action on your Nova Resource:
+You can add `Locale` field on your Nova Resource.
+You can add `Translations` field on your Nova Resource. Don't forget to add relation `translations` in the eager loading of your resource.
+You can add the `Translate` action on your Nova Resource.
+You can add the `LocaleFilter` filter on your Nova Resource.
+You can add the `Locales` card on your Nova Resource, if you've added the `LocaleFilter`.
+
+In all cases, add an `availableLocales` on your Resource.
 
 ```php
 use Laravel\Nova\Resource;
 use Novius\LaravelNovaTranslatable\Nova\Actions\Translate;
-
-class Post extends Resource
-{
-    public static $with = ['translations'];
-
-    public function availableLocales(): array
-    {
-        return ['fr' => 'Français', 'en' => 'English'];
-    }
-
-    public function actions(NovaRequest $request): array
-    {
-        return [
-            Translate::make()
-                ->titleField('name')
-                ->titleLabel('Name')
-                ->redirectAfterTranslate(false)
-                ->onlyInline(),
-        ];
-    }
-```
-
-## Field Locale and Translations
-
-You can add `Locale` and `Translations` fields on your Nova Resource.
-And don't forget to add relation `translations` in the eager loading of your resource.
-
-```php
-use Laravel\Nova\Resource;
-use Novius\LaravelNovaTranslatable\Nova\Fields\Locale;
-use Novius\LaravelNovaTranslatable\Nova\Fields\Translations;
 
 class Post extends Resource
 {
@@ -81,6 +56,31 @@ class Post extends Resource
         return [
             Locale::make('Language', 'locale'),
             Translations::make('Translations'),
+        ];
+    }
+
+    public function cards(NovaRequest $request): array
+    {
+        return [
+            new Locales(),
+        ];
+    }
+
+    public function filters(NovaRequest $request): array
+    {
+        return [
+            new LocaleFilter(),
+        ];
+    }
+
+    public function actions(NovaRequest $request): array
+    {
+        return [
+            Translate::make()
+                ->titleField('name')
+                ->titleLabel('Name')
+                ->redirectAfterTranslate(false)
+                ->onlyInline(),
         ];
     }
 ```
