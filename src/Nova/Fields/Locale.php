@@ -3,6 +3,7 @@
 namespace Novius\LaravelNovaTranslatable\Nova\Fields;
 
 use Laravel\Nova\Fields\Select;
+use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Locale extends Select
 {
@@ -27,5 +28,12 @@ class Locale extends Select
 
                 return null;
             });
+
+        $request = app()->get(NovaRequest::class);
+        $resource = $request->resource();
+
+        if (method_exists($resource, 'availableLocales')) {
+            $this->options($resource->availableLocales());
+        }
     }
 }

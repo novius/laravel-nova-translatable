@@ -4,8 +4,7 @@ namespace Novius\LaravelNovaTranslatable\Nova\Fields;
 
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Nova;
-use Novius\LaravelTranslatable\Traits\Translatable;
+use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Translations extends Text
 {
@@ -14,12 +13,14 @@ class Translations extends Text
     public function __construct($name, $attribute = null, callable $resolveCallback = null)
     {
         parent::__construct($name, function (Model $model) {
-            /** @var Translatable|Model $model */
-            $resource = Nova::resourceForModel($model);
+            /** @var NovaRequest $request */
+            $request = app()->get(NovaRequest::class);
+            $resource = $request->resource();
+            $locales = $this->locales ?? (method_exists($resource, 'availableLocales') ? $resource->availableLocales() : null);
 
-            if (! empty($this->locales)) {
+            if (! empty($locales)) {
                 $translations = [];
-                foreach ($this->locales as $locale => $trad) {
+                foreach ($locales as $locale => $trad) {
                     $translation = $model->translations->firstWhere($model->getLocaleColumn(), $locale);
                     if ($translation) {
                         $translations[] = $translation;

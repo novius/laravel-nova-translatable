@@ -38,11 +38,17 @@ use Novius\LaravelNovaTranslatable\Nova\Actions\Translate;
 
 class Post extends Resource
 {
+    public static $with = ['translations'];
+
+    public function availableLocales(): array
+    {
+        return ['fr' => 'Français', 'en' => 'English'];
+    }
+
     public function actions(NovaRequest $request): array
     {
         return [
             Translate::make()
-                ->locales(['fr' => 'Français', 'en' => 'English'])
                 ->titleField('name')
                 ->titleLabel('Name')
                 ->redirectAfterTranslate(false)
@@ -65,15 +71,16 @@ class Post extends Resource
 {
     public static $with = ['translations'];
 
+    public function availableLocales(): array
+    {
+        return ['fr' => 'Français', 'en' => 'English'];
+    }
+
     public function fields(NovaRequest $request): array
     {
-        $locales = ['fr' => 'Français', 'en' => 'English'];
-        
         return [
-            Locale::make('Language', 'locale')
-                ->options($locales),
-            Translations::make('Translations')
-                ->locales($locales),
+            Locale::make('Language', 'locale'),
+            Translations::make('Translations'),
         ];
     }
 ```

@@ -24,6 +24,17 @@ class Translate extends Action
 
     protected bool $redirectAfterTranslate = true;
 
+    public function __construct()
+    {
+        /** @var NovaRequest $request */
+        $request = app()->get(NovaRequest::class);
+        $resource = $request->resource();
+
+        if (method_exists($resource, 'availableLocales')) {
+            $this->locales($resource->availableLocales());
+        }
+    }
+
     public function locales(array $locales): static
     {
         $this->locales = $locales;
