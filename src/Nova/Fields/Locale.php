@@ -3,15 +3,23 @@
 namespace Novius\LaravelNovaTranslatable\Nova\Fields;
 
 use Laravel\Nova\Fields\Select;
-use Laravel\Nova\Resource;
+use Laravel\Nova\Http\Requests\NovaRequest;
 use Novius\LaravelNovaTranslatable\Helpers\SessionHelper;
 use Novius\LaravelTranslatable\Traits\Translatable;
+use RuntimeException;
 
 class Locale extends Select
 {
     public function __construct($name, $attribute = null, callable $resolveCallback = null)
     {
         parent::__construct($name, $attribute, $resolveCallback);
+
+        $request = app()->get(NovaRequest::class);
+        $resource = $request->newResource();
+        $model = $resource->model();
+        if (! in_array(Translatable::class, class_uses_recursive($model))) {
+            throw new RuntimeException('Resource must use trait Novius\LaravelTranslatable\Traits\Translatable');
+        }
 
         $this->rules('required')
             ->sortable()
@@ -21,25 +29,19 @@ class Locale extends Select
 
                 return count($options) > 1;
             })
-            ->default(function () {
+            ->default(function () use ($resource) {
                 $options = value($this->optionsCallback);
                 if (count($options) === 1) {
                     return array_keys($options)[0];
                 }
 
-                return SessionHelper::currentLocale($this->resource?->uriKey()) ?? null;
+                return SessionHelper::currentLocale($resource::uriKey()) ?? null;
             });
-    }
 
-    public function resource(Resource $resource): static
-    {
-        if (! in_array(Translatable::class, class_uses_recursive($resource->resource))) {
-            throw new \RuntimeException('Resource must use trait Novius\LaravelTranslatable\Traits\Translatable');
+        if (method_exists($resource, 'availableLocales')) {
+            $this->options($resource->availableLocales());
         }
 
-        $this->resource = $resource;
-        $this->attribute = $resource->resource->getLocaleColumn();
-
-        return $this;
+        $this->attribute = $model->getLocaleColumn();
     }
 }

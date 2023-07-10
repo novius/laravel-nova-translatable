@@ -24,10 +24,15 @@ class LaravelNovaTranslatableServiceProvider extends ServiceProvider
         });
 
         $this->loadTranslationsFrom(__DIR__.'/../lang', 'laravel-nova-translatable');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'laravel-nova-translatable');
 
         $this->publishes([
             __DIR__.'/../lang' => lang_path('vendor/laravel-nova-translatable'),
         ], 'lang');
+
+        $this->publishes([
+            __DIR__.'/../resources' => public_path('vendor/laravel-nova-translatable'),
+        ], 'public');
 
         Nova::serving(function (ServingNova $event) {
             Nova::script('laravel-nova-translatable', __DIR__.'/../dist/js/card.js');

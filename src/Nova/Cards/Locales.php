@@ -4,8 +4,10 @@ namespace Novius\LaravelNovaTranslatable\Nova\Cards;
 
 use Illuminate\Support\Arr;
 use Laravel\Nova\Card;
+use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Resource;
 use Novius\LaravelNovaTranslatable\Helpers\SessionHelper;
+use Novius\LaravelTranslatable\Traits\Translatable;
 
 /**
  * @method static static make(array $locales, Resource $resource)
@@ -19,18 +21,36 @@ class Locales extends Card
      */
     public $width = '1/3';
 
+    public $height = 'dynamic';
+
     protected array $locales = [];
 
     private string $resource;
 
     public $component = 'laravel-nova-locale-selector';
 
-    public function __construct(array $locales, Resource $resource)
+    public function __construct()
     {
         parent::__construct();
 
+        $request = app()->get(NovaRequest::class);
+        $resource = $request->newResource();
+        $model = $resource->model();
+        if (! in_array(Translatable::class, class_uses_recursive($model))) {
+            throw new \RuntimeException('Resource must use trait Novius\LaravelTranslatable\Traits\Translatable');
+        }
+
+        if (method_exists($resource, 'availableLocales')) {
+            $this->locales = $resource->availableLocales();
+        }
+        $this->resource = $resource::uriKey();
+    }
+
+    public function locales(array $locales): static
+    {
         $this->locales = $locales;
-        $this->resource = $resource->uriKey();
+
+        return $this;
     }
 
     public function jsonSerialize(): array

@@ -39,7 +39,7 @@ class LocaleController extends Controller
                         $found = true;
                     }
                 }
-                if (!$found && $locale) {
+                if (! $found && $locale) {
                     $filters[] = [LocaleFilter::class => $locale];
                 }
             } elseif ($locale) {
