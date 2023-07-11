@@ -48,7 +48,10 @@ class Translations extends Text
             ]);
         }, $resolveCallback);
 
-        $this->asHtml();
+        $this->asHtml()
+            ->canSee(function () {
+                return count($this->locales) > 1;
+            });
     }
 
     public function locales(array $locales): static
