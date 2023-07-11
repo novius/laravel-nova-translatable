@@ -8,12 +8,17 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 use Novius\LaravelTranslatable\Traits\Translatable;
 use RuntimeException;
 
+/**
+ * @method static static make(mixed $name = null, string|\Closure|callable|object|null $attribute = null, callable|null $resolveCallback = null)
+ */
 class Translations extends Text
 {
     public array $locales = [];
 
-    public function __construct($name, $attribute = null, callable $resolveCallback = null)
+    public function __construct($name = null, $attribute = null, callable $resolveCallback = null)
     {
+        $name = $name ?? trans('laravel-nova-translatable::messages.translations');
+
         parent::__construct($name, function (Model $model) {
             /** @var NovaRequest $request */
             $request = app()->get(NovaRequest::class);

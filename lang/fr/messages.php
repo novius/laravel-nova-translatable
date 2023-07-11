@@ -1,7 +1,6 @@
 <?php
 
 return [
-    'action_only_available_for_single' => 'Cette action est disponible uniquement pour une seule ressource.',
     'error_during_translation' => 'Erreur durant la traduction de la ressource.',
     'language' => 'Langue',
     'locale_all' => 'Toutes',
@@ -10,4 +9,5 @@ return [
     'successfully_update_current_locale_for_all' => 'La langue par défaut a été défini à : Tous',
     'title' => 'Titre',
     'translate' => 'Traduire',
+    'translations' => 'Traductions',
 ];

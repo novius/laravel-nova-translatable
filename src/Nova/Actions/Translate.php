@@ -24,6 +24,10 @@ class Translate extends Action
 
     protected bool $redirectAfterTranslate = true;
 
+    public $showOnIndex = false;
+
+    public $showInline = true;
+
     public function __construct()
     {
         /** @var NovaRequest $request */
@@ -33,6 +37,10 @@ class Translate extends Action
         if (method_exists($resource, 'availableLocales')) {
             $this->locales($resource->availableLocales());
         }
+
+        return $this->canSee(function () {
+            return count($this->locales) > 1;
+        });
     }
 
     public function locales(array $locales): static
@@ -70,10 +78,6 @@ class Translate extends Action
 
     public function handle(ActionFields $fields, Collection $models)
     {
-        if ($models->count() > 1) {
-            return Action::danger(trans('laravel-nova-translatable::messages.action_only_available_for_single'));
-        }
-
         if (! in_array(Translatable::class, class_uses_recursive($models->first()))) {
             throw new \RuntimeException('Translate action only work on model using Translatable trait.');
         }
@@ -85,6 +89,10 @@ class Translate extends Action
             $modelTranslate = $modelToTranslate->translate($fields->locale, [
                 $this->titleField => $fields->title,
             ]);
+            if (in_array('Spatie\Sluggable\HasSlug', class_uses_recursive($modelToTranslate))) {
+                $modelTranslate->generateSlug();
+                $modelTranslate->save();
+            }
 
             /** @var NovaResource $resourceClass */
             $resourceClass = Nova::resourceForModel($modelToTranslate::class);

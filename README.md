@@ -79,8 +79,7 @@ class Post extends Resource
             Translate::make()
                 ->titleField('name')
                 ->titleLabel('Name')
-                ->redirectAfterTranslate(false)
-                ->onlyInline(),
+                ->redirectAfterTranslate(false),
         ];
     }
 ```

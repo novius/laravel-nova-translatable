@@ -2,24 +2,31 @@
 
 namespace Novius\LaravelNovaTranslatable\Nova\Fields;
 
+use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Novius\LaravelNovaTranslatable\Helpers\SessionHelper;
 use Novius\LaravelTranslatable\Traits\Translatable;
 use RuntimeException;
 
+/**
+ * @method static static make(mixed $name = null, string|\Closure|callable|object|null $attribute = null, callable|null $resolveCallback = null)
+ */
 class Locale extends Select
 {
-    public function __construct($name, $attribute = null, callable $resolveCallback = null)
+    public function __construct($name = null, $attribute = null, callable $resolveCallback = null)
     {
-        parent::__construct($name, $attribute, $resolveCallback);
-
         $request = app()->get(NovaRequest::class);
         $resource = $request->newResource();
+        /** @var Translatable&Model $model */
         $model = $resource->model();
         if (! in_array(Translatable::class, class_uses_recursive($model))) {
             throw new RuntimeException('Resource must use trait Novius\LaravelTranslatable\Traits\Translatable');
         }
+        $name = $name ?? trans('laravel-nova-translatable::messages.language');
+        $attribute = $attribute ?? $model->getLocaleColumn();
+
+        parent::__construct($name, $attribute, $resolveCallback);
 
         $this->rules('required')
             ->sortable()
