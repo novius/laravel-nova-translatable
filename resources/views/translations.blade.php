@@ -1,15 +1,26 @@
 <div class="whitespace-nowrap">
-@foreach($translations as $translation)
+@foreach($translations as $locale => $translation)
     @php
-        $locale = $translation->{$translation->getLocaleColumn()};
         $trans = \Illuminate\Support\Arr::get($locales, $locale, $locale);
     @endphp
-    <a href="{{ str_replace('{id}', $translation->{$translation->getKeyName()}, $link) }}">
-        <img src="{{ asset('vendor/laravel-nova-translatable/images/flags/'.$locale.'.png') }}"
-             title="{{ $trans }}"
-             alt="{{ $trans }}"
-             class="inline-block"
-        />
-    </a>
+    @if($translation)
+        <a href="{{ route('nova.pages.edit', ['resource' => $resource, 'resourceId' => $model->{$model->getKeyName()}]) }}">
+            <img src="{{ asset('vendor/laravel-nova-translatable/images/flags/'.$locale.'.svg') }}"
+                 title="{{ $trans }}"
+                 alt="{{ $trans }}"
+                 class="inline-block"
+                 width="{{ $flagWidth }}"
+            />
+        </a>
+    @else
+        <a href="{{ route('nova.pages.translate', ['resource' => $resource, 'resourceId' => $model->{$model->getKeyName()}, 'locale' => $locale]) }}">
+            <img src="{{ asset('vendor/laravel-nova-translatable/images/flags/'.$locale.'.svg') }}"
+                 title="{{ $trans }}"
+                 alt="{{ $trans }}"
+                 class="inline-block opacity-50"
+                 width="{{ $flagWidth }}"
+            />
+        </a>
+    @endif
 @endforeach
 </div>

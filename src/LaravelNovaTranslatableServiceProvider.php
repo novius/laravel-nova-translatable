@@ -2,11 +2,14 @@
 
 namespace Novius\LaravelNovaTranslatable;
 
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Nova\Events\ServingNova;
 use Laravel\Nova\Nova;
+use Novius\LaravelNovaTranslatable\Http\Controllers\CreationFieldController;
 use Novius\LaravelNovaTranslatable\Http\Controllers\LocaleController;
+use Novius\LaravelNovaTranslatable\Http\Controllers\ResourceTranslateController;
 
 class LaravelNovaTranslatableServiceProvider extends ServiceProvider
 {
@@ -44,5 +47,22 @@ class LaravelNovaTranslatableServiceProvider extends ServiceProvider
         Route::middleware(['nova:api'])
             ->prefix('nova-vendor/laravel-nova-translatable')
             ->post('/update-current-locale', [LocaleController::class, 'updateCurrentLocale']);
+
+        Route::domain(config('nova.domain', null))
+            ->middleware(config('nova.api_middleware', []))
+            ->prefix(Nova::path())
+            ->as('nova.pages.')
+            ->get('resources/{resource}/{resourceId}/translate', ResourceTranslateController::class)
+            ->name('translate');
+
+        Route::group([
+            'domain' => config('nova.domain', null),
+            'as' => 'nova.api.',
+            'prefix' => 'nova-api',
+            'middleware' => 'nova:api',
+            'excluded_middleware' => [SubstituteBindings::class],
+        ], function () {
+            Route::get('/{resource}/creation-fields', CreationFieldController::class);
+        });
     }
 }

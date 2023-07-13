@@ -30,11 +30,10 @@ php artisan vendor:publish --provider="Novius\LaravelNovaTranslatable\LaravelNov
 
 ## Fields, Action, Filter, Card
 
-You can add `Locale` field on your Nova Resource.
-You can add `Translations` field on your Nova Resource. Don't forget to add relation `translations` in the eager loading of your resource.
-You can add the `Translate` action on your Nova Resource.
-You can add the `LocaleFilter` filter on your Nova Resource.
-You can add the `Locales` card on your Nova Resource, if you've added the `LocaleFilter`.
+* Add `Locale` field on your Nova Resource.
+* Add `Translations` field on your Nova Resource. Don't forget to add relation `translations` in the eager loading of your resource. You can translate item from the list of flags displayed.
+* You can add the `LocaleFilter` filter on your Nova Resource.
+* You can add the `Locales` card on your Nova Resource, if you've added the `LocaleFilter`.
 
 In all cases, add an `availableLocales` on your Resource.
 
@@ -54,11 +53,13 @@ class Post extends Resource
     public function fields(NovaRequest $request): array
     {
         return [
-            Locale::make('Language', 'locale'),
-            Translations::make('Translations'),
+            Locale::make(),
+            Translations::make(),
         ];
     }
 
+    // Optional, if you want to have a bar to switch locale of the items displayed on the index, more accessible than the filters 
+    // work with the filter LocaleFilter
     public function cards(NovaRequest $request): array
     {
         return [
@@ -73,14 +74,11 @@ class Post extends Resource
         ];
     }
 
-    public function actions(NovaRequest $request): array
+    // Optional, if you want to implement custom translation on your model  
+    public function translate(): void
     {
-        return [
-            Translate::make()
-                ->titleField('name')
-                ->titleLabel('Name')
-                ->redirectAfterTranslate(false),
-        ];
+         $model = $this->model();
+         $model->attribute_to_translate = 'Translation';
     }
 ```
 

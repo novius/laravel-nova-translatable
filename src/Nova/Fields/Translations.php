@@ -5,6 +5,7 @@ namespace Novius\LaravelNovaTranslatable\Nova\Fields;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Laravel\Nova\Http\Requests\ResourceCreateOrAttachRequest;
 use Novius\LaravelTranslatable\Traits\Translatable;
 use RuntimeException;
 
@@ -15,40 +16,63 @@ class Translations extends Text
 {
     public array $locales = [];
 
+    public int $flagWidth = 18;
+
+    public bool $onlyMissing = false;
+
+    public bool $withoutMissing = false;
+
     public function __construct($name = null, $attribute = null, callable $resolveCallback = null)
     {
+        /** @var NovaRequest $request */
+        $request = app()->get(NovaRequest::class);
+        $resource = $request->newResource();
+        /** @var Translatable&Model $model */
+        $model = $resource->model();
         $name = $name ?? trans('laravel-nova-translatable::messages.translations');
+        $attribute = $attribute ?? $model->getLocaleParentIdColumn();
 
-        parent::__construct($name, function (Model $model) {
-            /** @var NovaRequest $request */
-            $request = app()->get(NovaRequest::class);
-            $resource = $request->newResource();
-            $locales = $this->locales ?? (method_exists($resource, 'availableLocales') ? $resource->availableLocales() : null);
-            if (! in_array(Translatable::class, class_uses_recursive($model))) {
-                throw new RuntimeException('Resource must use trait Novius\LaravelTranslatable\Traits\Translatable');
-            }
+        if (! in_array(Translatable::class, class_uses_recursive($model))) {
+            throw new RuntimeException('Resource must use trait Novius\LaravelTranslatable\Traits\Translatable');
+        }
 
-            if (! empty($locales)) {
-                $translations = [];
-                foreach ($locales as $locale => $trad) {
-                    $translation = $model->translations->firstWhere($model->getLocaleColumn(), $locale);
-                    if ($translation) {
-                        $translations[] = $translation;
-                    }
-                }
-            } else {
-                $translations = $model->translations;
-            }
+        if (method_exists($resource, 'availableLocales')) {
+            $this->locales($resource->availableLocales());
+        }
 
-            return (string) view('laravel-nova-translatable::translations', [
-                'link' => config('nova.path').'/resources/'.$resource::uriKey().'/{id}/edit',
-                'locales' => $this->locales,
-                'model' => $model,
-                'translations' => $translations,
-            ]);
-        }, $resolveCallback);
+        parent::__construct($name, $attribute, $resolveCallback);
 
         $this->asHtml()
+            ->displayUsing(function ($value, $model) use ($resource) {
+                /** @var Translatable&Model $model */
+                if (! empty($this->locales)) {
+                    $translations = [];
+                    foreach ($this->locales as $locale => $trad) {
+                        $translation = $locale === $model->{$model->getLocaleColumn()} ?
+                            $model :
+                            $model->translations->firstWhere($model->getLocaleColumn(), $locale);
+
+                        if (($this->withoutMissing && $translation) || ($this->onlyMissing && $translation === null) ||
+                            (! $this->withoutMissing && ! $this->onlyMissing)
+                        ) {
+                            $translations[$locale] = $translation;
+                        }
+                    }
+                } else {
+                    $translations = $model->translations->mapWithKeys(function ($item) use ($model) {
+                        return [$item->{$model->getLocaleColumn()} => $item];
+                    });
+                }
+
+                return (string) view('laravel-nova-translatable::translations', [
+                    'flagWidth' => $this->flagWidth,
+                    'locales' => $this->locales,
+                    'model' => $model,
+                    'resource' => $resource::uriKey(),
+                    'translations' => $translations,
+                ]);
+            })
+
             ->canSee(function () {
                 return count($this->locales) > 1;
             });
@@ -59,5 +83,35 @@ class Translations extends Text
         $this->locales = $locales;
 
         return $this;
+    }
+
+    public function flagWidth(int $width): static
+    {
+        $this->flagWidth = $width;
+
+        return $this;
+    }
+
+    public function onlyMissing(): static
+    {
+        $this->onlyMissing = true;
+
+        return $this;
+    }
+
+    public function withoutMissing(): static
+    {
+        $this->withoutMissing = true;
+
+        return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        $request = app()->get(NovaRequest::class);
+
+        return array_merge(parent::jsonSerialize(), [
+            'component' => $request instanceof ResourceCreateOrAttachRequest ? 'hidden-field' : $this->component(),
+        ]);
     }
 }
