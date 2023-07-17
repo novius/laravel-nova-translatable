@@ -43,6 +43,9 @@ use Novius\LaravelNovaTranslatable\Nova\Actions\Translate;
 
 class Post extends Resource
 {
+    // If your model uses the SoftDelete trait
+    // public static $with = ['translationsWithDeleted'];
+    // Otherwise
     public static $with = ['translations'];
 
     public function availableLocales(): array

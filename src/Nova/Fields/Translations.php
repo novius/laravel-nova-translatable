@@ -50,7 +50,7 @@ class Translations extends Text
                     foreach ($this->locales as $locale => $trad) {
                         $translation = $locale === $model->{$model->getLocaleColumn()} ?
                             $model :
-                            $model->translations->firstWhere($model->getLocaleColumn(), $locale);
+                            $model->translationsWithDeleted->firstWhere($model->getLocaleColumn(), $locale);
 
                         if (($this->withoutMissing && $translation) || ($this->onlyMissing && $translation === null) ||
                             (! $this->withoutMissing && ! $this->onlyMissing)
