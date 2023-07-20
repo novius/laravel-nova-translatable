@@ -9,7 +9,7 @@ This package allows you to manage Laravel Models which use [Laravel Translatable
 ## Requirements
 
 * Laravel Nova >= 4.0
-* Laravel Translatable >= 1.0
+* Laravel Translatable >= 0.0.1
 * Laravel >= 8.0
 
 ## Installation
