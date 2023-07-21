@@ -5,12 +5,11 @@ namespace Novius\LaravelNovaTranslatable\Nova\Cards;
 use Illuminate\Support\Arr;
 use Laravel\Nova\Card;
 use Laravel\Nova\Http\Requests\NovaRequest;
-use Laravel\Nova\Resource;
 use Novius\LaravelNovaTranslatable\Helpers\SessionHelper;
 use Novius\LaravelTranslatable\Traits\Translatable;
 
 /**
- * @method static static make(array $locales, Resource $resource)
+ * @method static static make()
  */
 class Locales extends Card
 {

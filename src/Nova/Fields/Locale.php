@@ -8,7 +8,6 @@ use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Novius\LaravelNovaTranslatable\Helpers\SessionHelper;
 use Novius\LaravelTranslatable\Traits\Translatable;
-use RuntimeException;
 
 /**
  * @method static static make(mixed $name = null, string|\Closure|callable|object|null $attribute = null, callable|null $resolveCallback = null)
@@ -21,21 +20,22 @@ class Locale extends Select
 
     public function __construct($name = null, $attribute = null, callable $resolveCallback = null)
     {
+        $name = $name ?? trans('laravel-nova-translatable::messages.language');
+
         $request = app()->get(NovaRequest::class);
         $resource = $request->newResource();
         /** @var Translatable&Model $model */
         $model = $resource->model();
-        if (! in_array(Translatable::class, class_uses_recursive($model))) {
-            throw new RuntimeException('Resource must use trait Novius\LaravelTranslatable\Traits\Translatable');
+
+        $is_translatable = in_array(Translatable::class, class_uses_recursive($model));
+        if ($is_translatable) {
+            $attribute = $attribute ?? $model->getLocaleColumn();
         }
-        $name = $name ?? trans('laravel-nova-translatable::messages.language');
-        $attribute = $attribute ?? $model->getLocaleColumn();
 
         parent::__construct($name, $attribute, $resolveCallback);
 
         $this->rules('required')
             ->sortable()
-            ->displayUsingLabels()
             ->showOnIndex(function () {
                 $options = value($this->optionsCallback);
 
@@ -50,7 +50,7 @@ class Locale extends Select
                 return SessionHelper::currentLocale($resource::uriKey()) ?? null;
             });
 
-        if (method_exists($resource, 'availableLocales')) {
+        if ($is_translatable && method_exists($resource, 'availableLocales')) {
             $locales = $resource->availableLocales();
             $this->options($locales)
                 ->displayUsing(function ($value) use ($locales) {
@@ -60,9 +60,9 @@ class Locale extends Select
                     ]);
                 })
                 ->asHtml();
+        } else {
+            $this->displayUsingLabels();
         }
-
-        $this->attribute = $model->getLocaleColumn();
     }
 
     public function jsonSerialize(): array

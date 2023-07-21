@@ -11,7 +11,7 @@ use Novius\LaravelTranslatable\Traits\Translatable;
 use RuntimeException;
 
 /**
- * @method static static make(array $locales, Resource $resource)
+ * @method static static make()
  */
 class LocaleFilter extends Filter
 {
