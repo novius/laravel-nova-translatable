@@ -18,7 +18,7 @@ class Locale extends Select
 
     public $copyable = false;
 
-    public function __construct($name = null, $attribute = null, callable $resolveCallback = null)
+    public function __construct($name = null, $attribute = null, ?callable $resolveCallback = null)
     {
         $name = $name ?? trans('laravel-nova-translatable::messages.language');
 

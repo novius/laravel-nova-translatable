@@ -13,9 +13,7 @@ use Novius\LaravelNovaTranslatable\Http\Controllers\ResourceTranslateController;
 
 class LaravelNovaTranslatableServiceProvider extends ServiceProvider
 {
-    public function register(): void
-    {
-    }
+    public function register(): void {}
 
     /**
      * Bootstrap services.

@@ -21,7 +21,7 @@ class Translations extends Text
 
     public bool $withoutMissing = false;
 
-    public function __construct($name = null, $attribute = null, callable $resolveCallback = null)
+    public function __construct($name = null, $attribute = null, ?callable $resolveCallback = null)
     {
         $name = $name ?? trans('laravel-nova-translatable::messages.translations');
 
