@@ -4,6 +4,7 @@ namespace Novius\LaravelNovaTranslatable\Http\Resources;
 
 use Laravel\Nova\Http\Requests\ResourceCreateOrAttachRequest;
 use Laravel\Nova\Http\Resources\CreateViewResource;
+use Laravel\Nova\Resource as NovaResource;
 use Novius\LaravelTranslatable\Traits\Translatable;
 
 class TranslateViewResource extends CreateViewResource
@@ -29,7 +30,7 @@ class TranslateViewResource extends CreateViewResource
         $this->fromResourceId = $fromResourceId;
     }
 
-    public function newResourceWith(ResourceCreateOrAttachRequest $request)
+    public function newResourceWith(ResourceCreateOrAttachRequest $request): NovaResource
     {
         $query = $request->findModelQuery($this->fromResourceId);
 

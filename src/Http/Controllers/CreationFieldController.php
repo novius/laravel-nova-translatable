@@ -2,13 +2,14 @@
 
 namespace Novius\LaravelNovaTranslatable\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Laravel\Nova\Http\Controllers\CreationFieldController as BaseCreationFieldController;
 use Laravel\Nova\Http\Requests\ResourceCreateOrAttachRequest;
 use Novius\LaravelNovaTranslatable\Http\Resources\TranslateViewResource;
 
 class CreationFieldController extends BaseCreationFieldController
 {
-    public function __invoke(ResourceCreateOrAttachRequest $request)
+    public function __invoke(ResourceCreateOrAttachRequest $request): JsonResponse
     {
         if ($request->has('fromResourceId')) {
             $fromResourceId = explode('|', $request->get('fromResourceId'), 3);
