@@ -3,6 +3,7 @@
 namespace Novius\LaravelNovaTranslatable\Http\Controllers;
 
 use Inertia\Inertia;
+use Inertia\Response;
 use Laravel\Nova\Http\Controllers\Pages\ResourceReplicateController;
 use Laravel\Nova\Http\Requests\ResourceCreateOrAttachRequest;
 use Laravel\Nova\Menu\Breadcrumb;
@@ -11,7 +12,7 @@ use Laravel\Nova\Nova;
 
 class ResourceTranslateController extends ResourceReplicateController
 {
-    public function __invoke(ResourceCreateOrAttachRequest $request)
+    public function __invoke(ResourceCreateOrAttachRequest $request): Response
     {
         abort_unless($request->findModelQuery()->exists(), 404);
 
@@ -29,10 +30,8 @@ class ResourceTranslateController extends ResourceReplicateController
 
     /**
      * Get breadcrumb menu for the page.
-     *
-     * @return \Laravel\Nova\Menu\Breadcrumbs
      */
-    protected function breadcrumbs(ResourceCreateOrAttachRequest $request)
+    protected function breadcrumbs(ResourceCreateOrAttachRequest $request): Breadcrumbs
     {
         $resourceClass = $request->resource();
 
