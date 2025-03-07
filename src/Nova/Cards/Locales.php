@@ -7,6 +7,9 @@ use Laravel\Nova\Card;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Novius\LaravelNovaTranslatable\Helpers\SessionHelper;
 use Novius\LaravelTranslatable\Traits\Translatable;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use RuntimeException;
 
 /**
  * @method static static make()
@@ -28,6 +31,10 @@ class Locales extends Card
 
     public $component = 'laravel-nova-locale-selector';
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function __construct()
     {
         parent::__construct();
@@ -35,8 +42,8 @@ class Locales extends Card
         $request = app()->get(NovaRequest::class);
         $resource = $request->newResource();
         $model = $resource->model();
-        if (! in_array(Translatable::class, class_uses_recursive($model))) {
-            throw new \RuntimeException('Resource must use trait Novius\LaravelTranslatable\Traits\Translatable');
+        if (! in_array(Translatable::class, class_uses_recursive($model), true)) {
+            throw new RuntimeException('Resource must use trait Novius\LaravelTranslatable\Traits\Translatable');
         }
 
         if (method_exists($resource, 'availableLocales')) {
@@ -56,7 +63,7 @@ class Locales extends Card
     {
         $currentLocale = SessionHelper::currentLocale($this->resource);
 
-        $locales = array_values(Arr::map($this->locales, function ($label, $key) use ($currentLocale) {
+        $locales = array_values(Arr::map($this->locales, static function ($label, $key) use ($currentLocale) {
             return [
                 'key' => $key,
                 'label' => $label,

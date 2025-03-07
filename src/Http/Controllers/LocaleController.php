@@ -2,6 +2,8 @@
 
 namespace Novius\LaravelNovaTranslatable\Http\Controllers;
 
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Arr;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -10,7 +12,7 @@ use Novius\LaravelNovaTranslatable\Nova\Filters\LocaleFilter;
 
 class LocaleController extends Controller
 {
-    public function updateCurrentLocale(NovaRequest $request)
+    public function updateCurrentLocale(NovaRequest $request): ?JsonResponse
     {
         try {
             $resourceKey = $request->get('resource');
@@ -57,7 +59,7 @@ class LocaleController extends Controller
                 'redirectUrl' => $url_parsed['scheme'].'://'.$url_parsed['host'].$url_parsed['path'].'?'.http_build_query($query),
                 'error' => 0,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
                 'error' => 1,

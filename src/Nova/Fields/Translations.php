@@ -2,14 +2,18 @@
 
 namespace Novius\LaravelNovaTranslatable\Nova\Fields;
 
+use Closure;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Nova\Exceptions\HelperNotSupported;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Http\Requests\ResourceCreateOrAttachRequest;
 use Novius\LaravelTranslatable\Traits\Translatable;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 /**
- * @method static static make(mixed $name = null, string|\Closure|callable|object|null $attribute = null, callable|null $resolveCallback = null)
+ * @method static static make(mixed $name = null, string|Closure|callable|object|null $attribute = null, callable|null $resolveCallback = null)
  */
 class Translations extends Text
 {
@@ -21,6 +25,11 @@ class Translations extends Text
 
     public bool $withoutMissing = false;
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws HelperNotSupported
+     */
     public function __construct($name = null, $attribute = null, ?callable $resolveCallback = null)
     {
         $name = $name ?? trans('laravel-nova-translatable::messages.translations');
@@ -31,7 +40,7 @@ class Translations extends Text
         /** @var Translatable&Model $model */
         $model = $resource->model();
 
-        $is_translatable = in_array(Translatable::class, class_uses_recursive($model));
+        $is_translatable = in_array(Translatable::class, class_uses_recursive($model), true);
         if ($is_translatable) {
             $attribute = $attribute ?? $model->getLocaleParentIdColumn();
 
@@ -107,6 +116,10 @@ class Translations extends Text
         return $this;
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function jsonSerialize(): array
     {
         $request = app()->get(NovaRequest::class);

@@ -2,6 +2,8 @@
 
 namespace Novius\LaravelNovaTranslatable\Helpers;
 
+use Illuminate\Support\Facades\Session;
+
 class SessionHelper
 {
     protected static function sessionKey(?string $resource = null): string
@@ -15,16 +17,16 @@ class SessionHelper
 
     public static function currentLocale(?string $resource = null): ?string
     {
-        return session()->get(static::sessionKey($resource));
+        return Session::get(static::sessionKey($resource));
     }
 
     public static function clearCurrentLocale(?string $resource = null): void
     {
-        session()->forget(static::sessionKey($resource));
+        Session::forget(static::sessionKey($resource));
     }
 
     public static function setCurrentLocale(string $locale, ?string $resource = null): void
     {
-        session()->put(static::sessionKey($resource), $locale);
+        Session::put(static::sessionKey($resource), $locale);
     }
 }

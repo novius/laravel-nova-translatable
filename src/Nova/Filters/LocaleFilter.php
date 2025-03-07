@@ -2,12 +2,15 @@
 
 namespace Novius\LaravelNovaTranslatable\Nova\Filters;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Laravel\Nova\Filters\Filter;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Resource;
 use Novius\LaravelNovaTranslatable\Helpers\SessionHelper;
 use Novius\LaravelTranslatable\Traits\Translatable;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 
 /**
@@ -21,6 +24,10 @@ class LocaleFilter extends Filter
 
     private Resource $resource;
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function __construct()
     {
         /** @var NovaRequest $request */
@@ -28,7 +35,7 @@ class LocaleFilter extends Filter
         /** @var \Laravel\Nova\Resource $resource */
         $resource = $request->newResource();
         $model = $resource->model();
-        if (! in_array(Translatable::class, class_uses_recursive($model))) {
+        if (! in_array(Translatable::class, class_uses_recursive($model), true)) {
             throw new RuntimeException('Resource must use trait Novius\LaravelTranslatable\Traits\Translatable');
         }
 
@@ -47,20 +54,20 @@ class LocaleFilter extends Filter
         return $this;
     }
 
-    public function apply(Request $request, $query, $value)
+    public function apply(Request $request, $query, $value): Builder
     {
         SessionHelper::setCurrentLocale($value);
 
         return $query->where(with(new $this->resource->resource)->getLocaleColumn(), $value);
     }
 
-    public function options(Request $request)
+    public function options(Request $request): array
     {
         return collect($this->locales)->flip()->toArray();
     }
 
     public function default()
     {
-        return SessionHelper::currentLocale($this->resource->uriKey());
+        return SessionHelper::currentLocale($this->resource::uriKey());
     }
 }

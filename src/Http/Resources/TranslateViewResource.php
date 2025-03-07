@@ -2,6 +2,7 @@
 
 namespace Novius\LaravelNovaTranslatable\Http\Resources;
 
+use Illuminate\Database\Eloquent\Model;
 use Laravel\Nova\Http\Requests\ResourceCreateOrAttachRequest;
 use Laravel\Nova\Http\Resources\CreateViewResource;
 use Laravel\Nova\Resource as NovaResource;

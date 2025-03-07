@@ -2,15 +2,19 @@
 
 namespace Novius\LaravelNovaTranslatable\Nova\Fields;
 
+use Closure;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Nova\Exceptions\HelperNotSupported;
 use Laravel\Nova\Fields\AsHTML;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Novius\LaravelNovaTranslatable\Helpers\SessionHelper;
 use Novius\LaravelTranslatable\Traits\Translatable;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 /**
- * @method static static make(mixed $name = null, string|\Closure|callable|object|null $attribute = null, callable|null $resolveCallback = null)
+ * @method static static make(mixed $name = null, string|Closure|callable|object|null $attribute = null, callable|null $resolveCallback = null)
  */
 class Locale extends Select
 {
@@ -18,6 +22,11 @@ class Locale extends Select
 
     public $copyable = false;
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws HelperNotSupported
+     */
     public function __construct($name = null, $attribute = null, ?callable $resolveCallback = null)
     {
         $name = $name ?? trans('laravel-nova-translatable::messages.language');
@@ -27,7 +36,7 @@ class Locale extends Select
         /** @var Translatable&Model $model */
         $model = $resource->model();
 
-        $is_translatable = in_array(Translatable::class, class_uses_recursive($model));
+        $is_translatable = in_array(Translatable::class, class_uses_recursive($model), true);
         if ($is_translatable) {
             $attribute = $attribute ?? $model->getLocaleColumn();
         }
@@ -47,7 +56,7 @@ class Locale extends Select
                     return array_keys($options)[0];
                 }
 
-                return SessionHelper::currentLocale($resource::uriKey()) ?? null;
+                return SessionHelper::currentLocale($resource::uriKey());
             });
 
         if ($is_translatable && method_exists($resource, 'availableLocales')) {

@@ -35,7 +35,7 @@ class LaravelNovaTranslatableServiceProvider extends ServiceProvider
             __DIR__.'/../resources' => public_path('vendor/laravel-nova-translatable'),
         ], 'public');
 
-        Nova::serving(function (ServingNova $event) {
+        Nova::serving(static function (ServingNova $event) {
             Nova::script('laravel-nova-translatable', __DIR__.'/../dist/js/card.js');
         });
     }
@@ -46,7 +46,7 @@ class LaravelNovaTranslatableServiceProvider extends ServiceProvider
             ->prefix('nova-vendor/laravel-nova-translatable')
             ->post('/update-current-locale', [LocaleController::class, 'updateCurrentLocale']);
 
-        Route::domain(config('nova.domain', null))
+        Route::domain(config('nova.domain'))
             ->middleware(config('nova.api_middleware', []))
             ->prefix(Nova::path())
             ->as('nova.pages.')
@@ -54,12 +54,12 @@ class LaravelNovaTranslatableServiceProvider extends ServiceProvider
             ->name('translate');
 
         Route::group([
-            'domain' => config('nova.domain', null),
+            'domain' => config('nova.domain'),
             'as' => 'nova.api.',
             'prefix' => 'nova-api',
             'middleware' => 'nova:api',
             'excluded_middleware' => [SubstituteBindings::class],
-        ], function () {
+        ], static function () {
             Route::get('/{resource}/creation-fields', CreationFieldController::class);
         });
     }
