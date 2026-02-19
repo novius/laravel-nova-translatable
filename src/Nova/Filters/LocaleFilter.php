@@ -3,6 +3,7 @@
 namespace Novius\LaravelNovaTranslatable\Nova\Filters;
 
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Laravel\Nova\Filters\Filter;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -34,14 +35,13 @@ class LocaleFilter extends Filter
         $request = app()->get(NovaRequest::class);
         /** @var \Laravel\Nova\Resource $resource */
         $resource = $request->newResource();
-        $model = $resource->model();
+        /** @var Translatable&Model $model */
+        $model = $resource->model() ?? $resource::newModel();
         if (! in_array(Translatable::class, class_uses_recursive($model), true)) {
             throw new RuntimeException('Resource must use trait Novius\LaravelTranslatable\Traits\Translatable');
         }
 
-        if (method_exists($resource, 'availableLocales')) {
-            $this->locales = $resource->availableLocales();
-        }
+        $this->locales($model->translatableConfig()->available_locales);
         $this->resource = $resource;
 
         $this->name = trans('laravel-nova-translatable::messages.language');
@@ -57,8 +57,10 @@ class LocaleFilter extends Filter
     public function apply(Request $request, $query, $value): Builder
     {
         SessionHelper::setCurrentLocale($value);
+        /** @var Translatable&Model $model */
+        $model = $this->resource::newModel();
 
-        return $query->where(with(new $this->resource->resource)->getLocaleColumn(), $value);
+        return $query->where($model->translatableConfig()->locale_column, $value);
     }
 
     public function options(Request $request): array

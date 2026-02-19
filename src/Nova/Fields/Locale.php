@@ -34,11 +34,11 @@ class Locale extends Select
         $request = app()->get(NovaRequest::class);
         $resource = $request->newResource();
         /** @var Translatable&Model $model */
-        $model = $resource->model();
+        $model = $resource->model() ?? $resource::newModel();
 
         $is_translatable = in_array(Translatable::class, class_uses_recursive($model), true);
         if ($is_translatable) {
-            $attribute = $attribute ?? $model->getLocaleColumn();
+            $attribute = $attribute ?? $model->translatableConfig()->locale_column;
         }
 
         parent::__construct($name, $attribute, $resolveCallback);
@@ -59,8 +59,8 @@ class Locale extends Select
                 return SessionHelper::currentLocale($resource::uriKey());
             });
 
-        if ($is_translatable && method_exists($resource, 'availableLocales')) {
-            $locales = $resource->availableLocales();
+        if ($is_translatable) {
+            $locales = $model->translatableConfig()->available_locales;
             $this->options($locales)
                 ->displayUsing(function ($value) use ($locales) {
                     return (string) view('laravel-nova-translatable::locale', [

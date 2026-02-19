@@ -11,6 +11,7 @@ This package allows you to manage Laravel Models which use [Laravel Translatable
 * Laravel Nova >= 4.0
 * Laravel >= 10.0
 * PHP >= 8.2
+* Laravel Translatable >= 2.0
 
 > **NOTE**: These instructions are for Laravel >= 10.0 and PHP >= 8.2 If you are using prior version, please
 > see the [previous version's docs](https://github.com/novius/laravel-nova-translatable/tree/0.x).
@@ -26,7 +27,7 @@ composer require novius/laravel-nova-translatable
 
 ## Assets
 
-Next we need to publish the package's assets. We do this by running the following command:
+Next, we need to publish the package's assets. We do this by running the following command:
 
 ```sh
 php artisan vendor:publish --provider="Novius\LaravelNovaTranslatable\LaravelNovaTranslatableServiceProvider" --tag="public"
@@ -39,8 +40,6 @@ php artisan vendor:publish --provider="Novius\LaravelNovaTranslatable\LaravelNov
 * You can add the `LocaleFilter` filter on your Nova Resource.
 * You can add the `Locales` card on your Nova Resource, if you've added the `LocaleFilter`.
 
-In all cases, add an `availableLocales` on your Resource.
-
 ```php
 use Laravel\Nova\Resource;
 use Novius\LaravelNovaTranslatable\Nova\Actions\Translate;
@@ -51,11 +50,6 @@ class Post extends Resource
     // public static $with = ['translationsWithDeleted'];
     // Otherwise
     public static $with = ['translations'];
-
-    public function availableLocales(): array
-    {
-        return ['fr' => 'Français', 'en' => 'English'];
-    }
 
     public function fields(NovaRequest $request): array
     {

@@ -2,6 +2,7 @@
 
 namespace Novius\LaravelNovaTranslatable\Nova\Cards;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Laravel\Nova\Card;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -41,14 +42,13 @@ class Locales extends Card
 
         $request = app()->get(NovaRequest::class);
         $resource = $request->newResource();
-        $model = $resource->model();
+        /** @var Translatable&Model $model */
+        $model = $resource->model() ?? $resource::newModel();
         if (! in_array(Translatable::class, class_uses_recursive($model), true)) {
             throw new RuntimeException('Resource must use trait Novius\LaravelTranslatable\Traits\Translatable');
         }
 
-        if (method_exists($resource, 'availableLocales')) {
-            $this->locales = $resource->availableLocales();
-        }
+        $this->locales = $model->translatableConfig()->available_locales;
         $this->resource = $resource::uriKey();
     }
 

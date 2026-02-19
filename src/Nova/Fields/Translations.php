@@ -38,15 +38,13 @@ class Translations extends Text
         $request = app()->get(NovaRequest::class);
         $resource = $request->newResource();
         /** @var Translatable&Model $model */
-        $model = $resource->model();
+        $model = $resource->model() ?? $resource::newModel();
 
         $is_translatable = in_array(Translatable::class, class_uses_recursive($model), true);
         if ($is_translatable) {
-            $attribute = $attribute ?? $model->getLocaleParentIdColumn();
+            $attribute = $attribute ?? $model->translatableConfig()->locale_parent_id_column;
 
-            if (method_exists($resource, 'availableLocales')) {
-                $this->locales($resource->availableLocales());
-            }
+            $this->locales($model->translatableConfig()->available_locales);
         }
 
         parent::__construct($name, $attribute, $resolveCallback);
@@ -58,9 +56,9 @@ class Translations extends Text
                     if (! empty($this->locales)) {
                         $translations = [];
                         foreach ($this->locales as $locale => $trad) {
-                            $translation = $locale === $model->{$model->getLocaleColumn()} ?
+                            $translation = $locale === $model->{$model->translatableConfig()->locale_column} ?
                                 $model :
-                                $model->translationsWithDeleted->firstWhere($model->getLocaleColumn(), $locale);
+                                $model->translationsWithDeleted->firstWhere($model->translatableConfig()->locale_column, $locale);
 
                             if (($this->withoutMissing && $translation) || ($this->onlyMissing && $translation === null) ||
                                 (! $this->withoutMissing && ! $this->onlyMissing)
@@ -70,7 +68,7 @@ class Translations extends Text
                         }
                     } else {
                         $translations = $model->translations->mapWithKeys(function ($item) use ($model) {
-                            return [$item->{$model->getLocaleColumn()} => $item];
+                            return [$item->{$model->translatableConfig()->locale_column} => $item];
                         });
                     }
 

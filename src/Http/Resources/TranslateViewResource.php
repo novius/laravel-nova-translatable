@@ -47,8 +47,8 @@ class TranslateViewResource extends CreateViewResource
 
         /** @var Translatable&Model $model */
         $model = $resource->model();
-        $model->{$model->getLocaleColumn()} = $this->locale;
-        $model->{$model->getLocaleParentIdColumn()} = $from->{$from->getKeyName()};
+        $model->{$model->translatableConfig()->locale_column} = $this->locale;
+        $model->{$model->translatableConfig()->locale_parent_id_column} = $from->{$from->getKeyName()};
 
         if (method_exists($resource, 'translate')) {
             $resource->translate();
