@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.5'
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -40,10 +40,32 @@ jobs:
   phpstan:
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: ['8.2', '8.3', '8.4', '8.5']
+        laravel: [ 10.*, 11.*, 12.* ]
+        nova: [ 4.*, 5.* ]
+        include:
+          - laravel: 12.*
+            carbon: 3.*
+            testbench: 10.*
+            larastan: 3.*
+          - laravel: 11.*
+            carbon: 2.*
+            testbench: 9.*
+            larastan: 3.*
+          - laravel: 10.*
+            carbon: 2.*
+            testbench: 8.*
+            larastan: 2.*
+
+    name: phpstan - P${{ matrix.php-versions }} - L${{ matrix.laravel }} - N${{ matrix.nova }}
+
     steps:
       - uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: ${{ matrix.php-versions }}
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -61,7 +83,9 @@ jobs:
           key: composer-${{ hashFiles('composer.lock') }}
 
       - name: Install Dependencies
-        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+        run: |
+          composer require "laravel/framework:${{ matrix.laravel }}" "laravel/nova:${{ matrix.nova }}" "nesbot/carbon:${{ matrix.carbon }}" "orchestra/testbench:${{ matrix.testbench }}" "larastan/larastan:${{ matrix.larastan }}" --no-interaction --no-update
+          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --ignore-platform-reqs
 
       - name: PhPStan
         run: composer run-script phpstan
