@@ -8,6 +8,8 @@ use Laravel\Nova\Exceptions\HelperNotSupported;
 use Laravel\Nova\Fields\AsHTML;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use LaravelLang\Locales\Data\LocaleData;
+use LaravelLang\Locales\Facades\Locales;
 use Novius\LaravelNovaTranslatable\Helpers\SessionHelper;
 use Novius\LaravelTranslatable\Traits\Translatable;
 use Psr\Container\ContainerExceptionInterface;
@@ -60,7 +62,9 @@ class Locale extends Select
             });
 
         if ($is_translatable) {
-            $locales = $model->translatableConfig()->available_locales;
+            $locales = Locales::installed()
+                ->filter(fn (LocaleData $locale) => $model === null || in_array($locale->code, $model->translatableConfig()->available_locales, true))
+                ->mapWithKeys(fn (LocaleData $locale) => [$locale->code => $locale->localized]);
             $this->options($locales)
                 ->displayUsing(function ($value) use ($locales) {
                     return (string) view('laravel-nova-translatable::locale', [

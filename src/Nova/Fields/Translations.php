@@ -8,6 +8,8 @@ use Laravel\Nova\Exceptions\HelperNotSupported;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Http\Requests\ResourceCreateOrAttachRequest;
+use LaravelLang\Locales\Data\LocaleData;
+use LaravelLang\Locales\Facades\Locales;
 use Novius\LaravelTranslatable\Traits\Translatable;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -44,7 +46,9 @@ class Translations extends Text
         if ($is_translatable) {
             $attribute = $attribute ?? $model->translatableConfig()->locale_parent_id_column;
 
-            $this->locales($model->translatableConfig()->available_locales);
+            $this->locales(Locales::installed()
+                ->filter(fn (LocaleData $locale) => $model === null || in_array($locale->code, $model->translatableConfig()->available_locales, true))
+                ->mapWithKeys(fn (LocaleData $locale) => [$locale->code => $locale->localized]));
         }
 
         parent::__construct($name, $attribute, $resolveCallback);

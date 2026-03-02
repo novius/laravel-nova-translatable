@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Laravel\Nova\Card;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use LaravelLang\Locales\Data\LocaleData;
+use LaravelLang\Locales\Facades\Locales as LaravelLangLocales;
 use Novius\LaravelNovaTranslatable\Helpers\SessionHelper;
 use Novius\LaravelTranslatable\Traits\Translatable;
 use Psr\Container\ContainerExceptionInterface;
@@ -48,7 +50,9 @@ class Locales extends Card
             throw new RuntimeException('Resource must use trait Novius\LaravelTranslatable\Traits\Translatable');
         }
 
-        $this->locales = $model->translatableConfig()->available_locales;
+        $this->locales = LaravelLangLocales::installed()
+            ->filter(fn (LocaleData $locale) => $model === null || in_array($locale->code, $model->translatableConfig()->available_locales, true))
+            ->mapWithKeys(fn (LocaleData $locale) => [$locale->code => $locale->localized]);
         $this->resource = $resource::uriKey();
     }
 

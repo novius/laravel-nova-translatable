@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Laravel\Nova\Filters\Filter;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Resource;
+use LaravelLang\Locales\Data\LocaleData;
+use LaravelLang\Locales\Facades\Locales;
 use Novius\LaravelNovaTranslatable\Helpers\SessionHelper;
 use Novius\LaravelTranslatable\Traits\Translatable;
 use Psr\Container\ContainerExceptionInterface;
@@ -41,7 +43,9 @@ class LocaleFilter extends Filter
             throw new RuntimeException('Resource must use trait Novius\LaravelTranslatable\Traits\Translatable');
         }
 
-        $this->locales($model->translatableConfig()->available_locales);
+        $this->locales(Locales::installed()
+            ->filter(fn (LocaleData $locale) => $model === null || in_array($locale->code, $model->translatableConfig()->available_locales, true))
+            ->mapWithKeys(fn (LocaleData $locale) => [$locale->code => $locale->localized]));
         $this->resource = $resource;
 
         $this->name = trans('laravel-nova-translatable::messages.language');
