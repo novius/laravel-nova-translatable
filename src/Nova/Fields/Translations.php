@@ -46,9 +46,12 @@ class Translations extends Text
         if ($is_translatable) {
             $attribute = $attribute ?? $model->translatableConfig()->locale_parent_id_column;
 
-            $this->locales(Locales::installed()
-                ->filter(fn (LocaleData $locale) => $model === null || in_array($locale->code, $model->translatableConfig()->available_locales, true))
-                ->mapWithKeys(fn (LocaleData $locale) => [$locale->code => $locale->localized]));
+            $this->locales(
+                Locales::installed()
+                    ->filter(fn (LocaleData $locale) => $model === null || in_array($locale->code, $model->translatableConfig()->available_locales, true))
+                    ->mapWithKeys(fn (LocaleData $locale) => [$locale->code => $locale->localized])
+                    ->toArray()
+            );
         }
 
         parent::__construct($name, $attribute, $resolveCallback);

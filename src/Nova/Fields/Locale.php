@@ -64,7 +64,8 @@ class Locale extends Select
         if ($is_translatable) {
             $locales = Locales::installed()
                 ->filter(fn (LocaleData $locale) => $model === null || in_array($locale->code, $model->translatableConfig()->available_locales, true))
-                ->mapWithKeys(fn (LocaleData $locale) => [$locale->code => $locale->localized]);
+                ->mapWithKeys(fn (LocaleData $locale) => [$locale->code => $locale->localized])
+                ->toArray();
             $this->options($locales)
                 ->displayUsing(function ($value) use ($locales) {
                     return (string) view('laravel-nova-translatable::locale', [

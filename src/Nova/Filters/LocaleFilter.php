@@ -43,9 +43,12 @@ class LocaleFilter extends Filter
             throw new RuntimeException('Resource must use trait Novius\LaravelTranslatable\Traits\Translatable');
         }
 
-        $this->locales(Locales::installed()
-            ->filter(fn (LocaleData $locale) => $model === null || in_array($locale->code, $model->translatableConfig()->available_locales, true))
-            ->mapWithKeys(fn (LocaleData $locale) => [$locale->code => $locale->localized]));
+        $this->locales(
+            Locales::installed()
+                ->filter(fn (LocaleData $locale) => $model === null || in_array($locale->code, $model->translatableConfig()->available_locales, true))
+                ->mapWithKeys(fn (LocaleData $locale) => [$locale->code => $locale->localized])
+                ->toArray()
+        );
         $this->resource = $resource;
 
         $this->name = trans('laravel-nova-translatable::messages.language');
