@@ -1,7 +1,7 @@
 laravel: '@testbench'
 
 providers:
-  # - Workbench\App\Providers\WorkbenchServiceProvider
+  - Novius\LaravelNovaTranslatable\LaravelNovaTranslatableServiceProvider
 
 migrations:
   - workbench/database/migrations

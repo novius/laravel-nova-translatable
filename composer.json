@@ -50,7 +50,7 @@
             "@composer cs-fix -- --test"
         ],
         "phpstan": [
-            "vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 1G"
+            "vendor/bin/phpstan analyse -c phpstan.dist.neon --memory-limit 1G"
         ],
         "post-autoload-dump": [
             "@clear",

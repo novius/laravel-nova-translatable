@@ -45,7 +45,7 @@ class LocaleFilter extends Filter
 
         $this->locales(
             Locales::installed()
-                ->filter(fn (LocaleData $locale) => $model === null || in_array($locale->code, $model->translatableConfig()->available_locales, true))
+                ->filter(fn (LocaleData $locale) => in_array($locale->code, $model->translatableConfig()->available_locales, true))
                 ->mapWithKeys(fn (LocaleData $locale) => [$locale->code => $locale->localized])
                 ->toArray()
         );
